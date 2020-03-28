@@ -14,10 +14,12 @@
     <property name="srcdir" location="." />
     <property name="rootdir" location="./.." />
     <property name="builddir" location="${rootdir}/build" />
+	<property name="dbdir" location="${builddir}/db" />
 
     <echo message="rootdir:       ${rootdir}" />
     <echo message="srcdir:        ${srcdir}" />
     <echo message="builddir:      ${builddir}" />
+	<echo message="dbdir:         ${dbdir}" />
     <echo message="DLC:           ${DLC}" />
   </target>
 
@@ -26,14 +28,14 @@
     <mkdir dir="${builddir}" />  	
   </target>
   
-	<target name="createdb">
-    <mkdir dir="${builddir}/db" />
-		<PCTCreateBase dbname="bfvlib" destdir="${builddir}/db" dlchome="${DLC}" structfile="${srcdir}/bfvlib/schema/bfvlib.st"/>
+  <target name="createdb">
+    <mkdir dir="${dbdir}" />
+	<PCTCreateBase dbname="bfvlib" destdir=${dbdir}" dlchome="${DLC}" structfile="${srcdir}/bfvlib/schema/bfvlib.st"/>
     <PCTLoadSchema dlcHome="${DLC}">
-      <PCTConnection dbName="bfvlib" dbDir="${builddir}/db" singleUser="true" />
+      <PCTConnection dbName="bfvlib" dbDir="${dbdir}" singleUser="true" />
       <fileset dir="${srcdir}/bfvlib/schema" includes="*.df" />
     </PCTLoadSchema>
-	</target>
+  </target>
 		
 <!--	
   <target name="createdelta">
