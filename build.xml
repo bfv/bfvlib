@@ -30,7 +30,7 @@
   
   <target name="createdb">
     <mkdir dir="${dbdir}" />
-	<PCTCreateBase dbname="bfvlib" destdir=${dbdir}" dlchome="${DLC}" structfile="${srcdir}/bfvlib/schema/bfvlib.st"/>
+	<PCTCreateBase dbname="bfvlib" destdir="${dbdir}" dlchome="${DLC}" structfile="${srcdir}/bfvlib/schema/bfvlib.st"/>
     <PCTLoadSchema dlcHome="${DLC}">
       <PCTConnection dbName="bfvlib" dbDir="${dbdir}" singleUser="true" />
       <fileset dir="${srcdir}/bfvlib/schema" includes="*.df" />
