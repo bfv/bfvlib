@@ -51,7 +51,8 @@
 	</target>
 -->
 	
-  <target name="compile">
+  <target name="compile" depends="initvars">
+  	
     <mkdir dir="${builddir}/xref_out" />
     <PCTCompile destdir="${builddir}/bin" dlchome="${DLC}" stopOnError="true" 
         graphicalMode="false" forceCompile="true" MD5="true" 
