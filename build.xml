@@ -23,18 +23,23 @@
     <echo message="DLC:           ${DLC}" />
   </target>
 
-  <target name="init">
+  <target name="init" unless="initialized">
     <delete dir="${builddir}" failonerror="false" />
     <mkdir dir="${builddir}" />  	
+  	<property name="initialized" value="true" />  	
   </target>
   
-  <target name="createdb">
+  <target name="createdb" depends="init">
+    
     <mkdir dir="${dbdir}" />
+  	
 	<PCTCreateBase dbname="bfvlib" destdir="${dbdir}" dlchome="${DLC}" structfile="${srcdir}/bfvlib/schema/bfvlib.st"/>
-    <PCTLoadSchema dlcHome="${DLC}">
+    
+  	<PCTLoadSchema dlcHome="${DLC}">
       <PCTConnection dbName="bfvlib" dbDir="${dbdir}" singleUser="true" />
       <fileset dir="${srcdir}/bfvlib/schema" includes="*.df" />
     </PCTLoadSchema>
+  	
   </target>
 		
 <!--	
