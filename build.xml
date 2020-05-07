@@ -30,6 +30,8 @@
   </target>
   
   <target name="createdb" depends="init">
+    
+    <property name="dbdir" location="${builddir}/dbs/framework" />
 	  
     <delete dir="${dbdir}" failonerror="false" />
     <mkdir dir="${dbdir}" />
@@ -53,10 +55,12 @@
 -->
 	
   <target name="compile" depends="initvars">
-  	
+    
+    <property name="dbdir" location="${builddir}/dbs/framework" />
+	  
     <mkdir dir="${builddir}/xref_out" />
 	  
-    <PCTCompile destdir="${builddir}/bin" dlchome="${DLC}" stopOnError="true" 
+    <PCTCompile destdir="${builddir}/rcode" dlchome="${DLC}" stopOnError="true" 
         graphicalMode="false" forceCompile="true" MD5="true" 
         keepXref="true" xrefDir="${builddir}/xref_out"
         requireFullKeywords="true" requireFullNames="true" requireFieldQualifiers="true">
@@ -74,8 +78,8 @@
   </target>
   
   <target name="package">
-    <PCTLibrary destFile="${builddir}/bfvlib.pl"  dlchome="${DLC}">
-      <fileset dir="${builddir}/bin">
+    <PCTLibrary destFile="${builddir}/bfvlib.pl" dlchome="${DLC}">
+      <fileset dir="${builddir}/rcode">
         <include name="**/*.r" />
       </fileset>
     </PCTLibrary>
