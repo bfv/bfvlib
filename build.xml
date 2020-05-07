@@ -5,21 +5,21 @@
   <property environment="env"/>
 
   <target name="build" depends="initvars,init">
-  	<antcall target="createdb" />
+    <antcall target="createdb" />
     <antcall target="compile" />
-  	<antcall target="package" />
+    <antcall target="package" />
   </target>
 
   <target name="initvars">
     <property name="srcdir" location="." />
     <property name="rootdir" location="./.." />
     <property name="builddir" location="${rootdir}/build" />
-	<property name="dbdir" location="${builddir}/db" />
+    <property name="dbdir" location="${builddir}/dbs/framework" />
 
     <echo message="rootdir:       ${rootdir}" />
     <echo message="srcdir:        ${srcdir}" />
     <echo message="builddir:      ${builddir}" />
-	<echo message="dbdir:         ${dbdir}" />
+    <echo message="dbdir:         ${dbdir}" />
     <echo message="DLC:           ${DLC}" />
   </target>
 
