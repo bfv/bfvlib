@@ -179,11 +179,13 @@ class bfvlib.net.HttpHelper:
     define variable xmlDoc as handle no-undo.
     
     contentType = response:ContentType.
-
+    if (contentType matches "application/vnd.*+json") then
+      contentType = "application/json".
+      
     case (contentType):
       
       when "application/json" then do:
-        cast(response:Entity, "Progress.Json.ObjectModel.JsonObject"):Write(contentString, true).
+        cast(response:Entity, "Progress.Json.ObjectModel.JsonConstruct"):Write(contentString, true).
       end.
       
       otherwise do:
