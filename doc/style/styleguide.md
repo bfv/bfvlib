@@ -29,11 +29,29 @@ fully qualified class name example: `bfvlib.serialize.SimpleJsonSerializer`
 ## structure
 
 ### indents
-The indents are spaces, not tabs. The tab size is 2 spaces.
+The indents are spaces, not tabs. The tab size is 4 spaces.
 
 ### order
 The order within a source is
 - block-level first
 - `using`s second
 - the rest
+
+### if-then-else
+If's are written like:
+
+if (_expression_) then
+    _statement_
+else
+    _statement_
+
+with do-blocks:
+if (_expression_) then do:
+    _statement_
+end.
+else do:
+    _statement_
+end.
+
+_then_ or _do_ NOT on a new line
 

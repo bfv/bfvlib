@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="BfvAntLibrary" xmlns:if="ant:if" xmlns:unless="ant:unless">
+
+    <macrodef name="echotime">
+        <attribute name="message" />
+        <sequential>
+            <local name="timestamp.echo" />
+            <tstamp>
+                <format property="timestamp.echo" pattern="yyyy-MM-dd_HH:mm:ss.SSS" />
+            </tstamp>
+            <echo message="@@@@@@@@@@ ${timestamp.echo} @{message}" />
+        </sequential>
+    </macrodef>
+
+</project>

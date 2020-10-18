@@ -28,13 +28,10 @@ using bfvlib.net.HttpRequestOptions.
 block-level on error undo, throw.
 
 class bfvlib.net.HttpHelper: 
+  
+  define public static property Separator as character initial '~r~n' no-undo get.
     
-  define protected variable host    as character    no-undo.  
-  define protected variable path    as character    no-undo.  
-  define protected variable method  as character    no-undo.
-  define protected variable service as character    no-undo.
-  define protected variable request as IHttpRequest no-undo.
-  define protected variable client  as IHttpClient  no-undo.   
+  define private static variable token as character no-undo.
     
 
   method public static IHttpResponse Get(url as character):
@@ -49,6 +46,7 @@ class bfvlib.net.HttpHelper:
     define variable response as IHttpResponse no-undo.
   
     builder = RequestBuilder:Get(url).
+    builder = HttpHelper:applyAuthorization(builder).
     builder = HttpHelper:applyOptions(builder, options).
     
     request = builder:Request.
@@ -75,7 +73,8 @@ class bfvlib.net.HttpHelper:
     define variable client as IHttpClient no-undo.   
     define variable response as IHttpResponse no-undo.
     
-    builder = RequestBuilder:Post(url, new String(body)).    
+    builder = RequestBuilder:Post(url, new String(body)).   
+    builder = HttpHelper:applyAuthorization(builder). 
     builder = HttpHelper:applyOptions(builder, options).
     
     request = builder:Request.
@@ -103,6 +102,7 @@ class bfvlib.net.HttpHelper:
     define variable response as IHttpResponse no-undo.
   
     builder = RequestBuilder:Put(url, new String(body)).
+    builder = HttpHelper:applyAuthorization(builder).
     builder = HttpHelper:applyOptions(builder, options).
     
     request = builder:Request.
@@ -290,6 +290,21 @@ class bfvlib.net.HttpHelper:
     end.
     
     return resultString.
+    
+  end method.
+  
+  
+  method public static void SetBearerToken(bearerToken as character):
+    HttpHelper:token = "Bearer " + bearerToken.
+  end method.
+
+  
+  method private static RequestBuilder applyAuthorization(builder as RequestBuilder):
+      
+    if (HttpHelper:token > "") then 
+        builder:AddHeader("Authorization", HttpHelper:token).
+      
+    return builder.
     
   end method.
   

@@ -1,7 +1,8 @@
 <project name="build" default="build" basedir=".">
-
+	
   <taskdef resource="PCT.properties" />
   <typedef resource="types.properties" />
+
   <property environment="env"/>
 
   <target name="build" depends="initvars,init">
@@ -12,7 +13,7 @@
 
   <target name="initvars">
     <property name="srcdir" location="." />
-    <property name="rootdir" location="./.." />
+    <property name="rootdir" location="./../.." />
     <property name="builddir" location="${rootdir}/build" />
     <property name="dbdir" location="${builddir}/dbs/framework" />
 

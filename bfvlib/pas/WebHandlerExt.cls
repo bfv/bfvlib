@@ -303,9 +303,9 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     response = new WebResponse().
     
-    if (not connected('sports2000')) then do:
+    if (not connected('sports2000') and not connected('sports2020')) then do:
       response:ContentType = 'text/plain'.
-      response:Entity = new String('sports2000 not connected').
+      response:Entity = new String('sports2000/2020 not connected').
     end.
     else do:
       json = this-object:customersToJson().
