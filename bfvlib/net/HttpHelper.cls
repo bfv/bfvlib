@@ -35,16 +35,16 @@ class bfvlib.net.HttpHelper:
     
   define private static variable token as character no-undo.
   
-  // via SSLlabs it's possible to see which ciphers are supported
-  define private static variable ciphers as character no-undo extent 4 initial [
+  define protected variable method  as character    no-undo.
+  define protected variable service as character    no-undo.
       "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",  
       "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
       "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
       "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384"   
     ].
     
-  // make sure we no longer use the obesolete and insecure TLSv1.1
-  define private static variable protocols as character no-undo extent 4 initial [
+  define protected variable request as IHttpRequest no-undo.
+  define protected variable client  as IHttpClient  no-undo.   
       "TLSv1.2",  
       "TLSv1.3"
     ].

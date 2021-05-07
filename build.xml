@@ -1,41 +1,45 @@
 <project name="build" default="build" basedir=".">
-
+	
   <taskdef resource="PCT.properties" />
   <typedef resource="types.properties" />
+
   <property environment="env"/>
 
   <target name="build" depends="initvars,init">
-  	<antcall target="createdb" />
+    <antcall target="createdb" />
     <antcall target="compile" />
-  	<antcall target="package" />
+    <antcall target="package" />
   </target>
 
   <target name="initvars">
     <property name="srcdir" location="." />
-    <property name="rootdir" location="./.." />
+    <property name="rootdir" location="./../.." />
     <property name="builddir" location="${rootdir}/build" />
-	<property name="dbdir" location="${builddir}/db" />
+    <property name="dbdir" location="${builddir}/dbs/framework" />
 
     <echo message="rootdir:       ${rootdir}" />
     <echo message="srcdir:        ${srcdir}" />
     <echo message="builddir:      ${builddir}" />
-	<echo message="dbdir:         ${dbdir}" />
+    <echo message="dbdir:         ${dbdir}" />
     <echo message="DLC:           ${DLC}" />
   </target>
 
   <target name="init" unless="initialized">
     <delete dir="${builddir}" failonerror="false" />
     <mkdir dir="${builddir}" />  	
-  	<property name="initialized" value="true" />  	
+    <property name="initialized" value="true" />  	
   </target>
   
   <target name="createdb" depends="init">
     
+    <property name="dbdir" location="${builddir}/dbs/framework" />
+	  
+    <delete dir="${dbdir}" failonerror="false" />
     <mkdir dir="${dbdir}" />
-  	
-	<PCTCreateBase dbname="bfvlib" destdir="${dbdir}" dlchome="${DLC}" structfile="${srcdir}/bfvlib/schema/bfvlib.st"/>
+	  
+    <PCTCreateBase dbname="bfvlib" destdir="${dbdir}" dlchome="${DLC}" structfile="${srcdir}/bfvlib/schema/bfvlib.st"/>
     
-  	<PCTLoadSchema dlcHome="${DLC}">
+    <PCTLoadSchema dlcHome="${DLC}">
       <PCTConnection dbName="bfvlib" dbDir="${dbdir}" singleUser="true" />
       <fileset dir="${srcdir}/bfvlib/schema" includes="*.df" />
     </PCTLoadSchema>
@@ -45,20 +49,23 @@
 <!--	
   <target name="createdelta">
 	  <PCTDumpIncremental destfile="${builddir}/db/delta.df" dlchome="${DLC}">
-	  	<sourcedb dbName="bfvlib" dbdir="${builddir}/db" singleuser="true" logicalName="sourcedb"/>
+	  	<sourcedb dbName="bfvlib" dbdir="${dbdir}" singleuser="true" logicalName="sourcedb"/>
 		  <targetdb paramFile="${rootdir}/config/db.pf" />
 		</PCTDumpIncremental>
 	</target>
 -->
 	
   <target name="compile" depends="initvars">
-  	
+    
+    <property name="dbdir" location="${builddir}/dbs/framework" />
+	  
     <mkdir dir="${builddir}/xref_out" />
-    <PCTCompile destdir="${builddir}/bin" dlchome="${DLC}" stopOnError="true" 
+	  
+    <PCTCompile destdir="${builddir}/rcode" dlchome="${DLC}" stopOnError="true" 
         graphicalMode="false" forceCompile="true" MD5="true" 
         keepXref="true" xrefDir="${builddir}/xref_out"
-    	  requireFullKeywords="true" requireFullNames="true" requireFieldQualifiers="true">
-      <DBConnection dbName="bfvlib" dbDir="${builddir}/db" singleUser="true" />
+        requireFullKeywords="true" requireFullNames="true" requireFieldQualifiers="true">
+      <DBConnection dbName="bfvlib" dbDir="${dbdir}" singleUser="true" />
       <propath>
         <pathelement path="${srcdir}" />
         <pathelement path="${DLC}/tty/OpenEdge.Core.pl" />
@@ -72,10 +79,10 @@
   </target>
   
   <target name="package">
-    <PCTLibrary destFile="${builddir}/bfvlib.pl"  dlchome="${DLC}">
-      <fileset dir="${builddir}/bin">
+    <PCTLibrary destFile="${builddir}/bfvlib.pl" dlchome="${DLC}">
+      <fileset dir="${builddir}/rcode">
         <include name="**/*.r" />
-  	  </fileset>
+      </fileset>
     </PCTLibrary>
   </target>
   

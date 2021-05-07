@@ -37,7 +37,7 @@ class bfvlib.net.HttpFormData implements IHtmlFormEncoding:
         for each ttparam:
             body = body + (if (body > '') then HttpHelper:Separator else '') + ttparam.paramname + '=' + ttparam.paramvalue. 
         end.
-message 'body:' string(body) view-as alert-box.        
+
         return body.
         
     end method.
