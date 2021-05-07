@@ -31,6 +31,7 @@ using bfvlib.net.HttpHelper.
 class bfvlib.pas.WebHandlerExt inherits WebHandler: 
   
   define private property queryParameters as StringStringMap no-undo get. set.
+  define private static property callCount as integer no-undo get. set.
   
   constructor public WebHandlerExt():
     
@@ -47,6 +48,8 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     endpoint = request:GetContextValue('URI_FINAL_MATCH_GROUP').
     message substitute('GET: &1', endpoint).
+    
+    callCount = callCount + 1.
     
     errorFound = false.
     case endpoint:
@@ -71,7 +74,10 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
       
       when '/propath' then
         response = this-object:processPropath(request).
-          
+      
+      when '' then 
+        response = this-object:processHealth(request).
+            
       otherwise do:
         response = this-object:processNotAllowed(request).  
         errorFound = true.
@@ -179,7 +185,27 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
   end method.
   
+
+  method private WebHandlerExt addKubernetes(request as IWebRequest, json as JsonObject):
+    
+    define variable kubernetesJson as JsonObject no-undo.
+    define variable environment as character no-undo.
+    
+    environment = os-getenv('OE_ENVIRONMENT').
+    if (environment = ?) then
+        environment = '<unknown>'.
+
+    kubernetesJson = new JsonObject().
+    kubernetesJson:Add('environment', environment).
+    kubernetesJson:Add('calls', callCount).
+        
+    json:Add('kubernetes', kubernetesJson).
+    
+    return this-object.
+    
+  end method.
   
+    
   method private WebHandlerExt addPathParameters(request as IWebRequest, json as JsonObject):
     
     define variable parameterJson as JsonObject no-undo.
@@ -303,9 +329,9 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     response = new WebResponse().
     
-    if (not connected('sports2000')) then do:
+    if (not connected('sports2000') and not connected('sports2020')) then do:
       response:ContentType = 'text/plain'.
-      response:Entity = new String('sports2000 not connected').
+      response:Entity = new String('sports2000/2020 not connected').
     end.
     else do:
       json = this-object:customersToJson().
@@ -334,6 +360,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     json = new JsonObject().
     this-object
         :addQueryParameters(request, json)
+        :addKubernetes(request, json)
         :addHeaders(request, json)
         :addStandardHttp(request, json)
         .
@@ -404,6 +431,20 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
   end method.
   
+  method private IHttpResponse processHealth(request as IWebRequest):
+      
+    define variable response as IHttpResponse no-undo.
+     
+    // for demo purposes we return 'unhealthy' after 10 calls
+    response = new WebResponse().
+    response:StatusCode = (if (callCount <= 10) then 200 else 500).
+    response:Entity = new String('').
+    response:ContentType = 'text/plain'.
+    
+    return response.
+       
+  end method.
+  
   method private IHttpResponse processHome(request as IWebRequest):
     
     define variable response as IHttpResponse no-undo.
@@ -420,8 +461,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     return response.
 
   end method.
-  
-  
+    
   method private IHttpResponse processNotAllowed(request as IWebRequest):
     
     define variable response as IHttpResponse no-undo.

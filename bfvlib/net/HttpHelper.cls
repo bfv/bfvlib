@@ -24,6 +24,8 @@ using Progress.Json.ObjectModel.JsonObject.
 using Progress.Lang.AppError.
 using bfvlib.net.HttpHelper.
 using bfvlib.net.HttpRequestOptions.
+using OpenEdge.Net.HTTP.IHttpClientLibrary.
+using OpenEdge.Net.HTTP.Lib.ClientLibraryBuilder.
 
 block-level on error undo, throw.
 
@@ -32,7 +34,29 @@ class bfvlib.net.HttpHelper:
   define public static property Separator as character initial '~r~n' no-undo get.
     
   define private static variable token as character no-undo.
+  
+  // via SSLlabs it's possible to see which ciphers are supported
+  define private static variable ciphers as character no-undo extent 4 initial [
+      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",  
+      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+      "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+      "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384"   
+    ].
     
+  // make sure we no longer use the obesolete and insecure TLSv1.1
+  define private static variable protocols as character no-undo extent 4 initial [
+      "TLSv1.2",  
+      "TLSv1.3"
+    ].
+    
+  define private static variable httpClientLibrary as IHttpClientLibrary no-undo.
+  
+  constructor static httphelper():
+    httpClientLibrary = ClientLibraryBuilder:Build()
+                            :SetSSLProtocols(protocols)
+                            :SetSSLCiphers(ciphers)
+                            :Library.
+  end.  
 
   method public static IHttpResponse Get(url as character):
     return get(url, ?).
@@ -82,7 +106,10 @@ class bfvlib.net.HttpHelper:
     if (valid-object(options)) then
       addParametersToRequest(request, options).
     
-    client = ClientBuilder:Build():Client.
+    client = ClientBuilder
+               :Build()
+               :UsingLibrary(httpClientLibrary)
+               :Client.
     
     response = client:Execute(request).
     

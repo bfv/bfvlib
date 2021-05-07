@@ -10,6 +10,7 @@
   ----------------------------------------------------------------------*/
 
 using OpenEdge.Core.Collections.StringStringMap.
+using bfvlib.net.HttpRequestOptions.
 
 block-level on error undo, throw.
 
@@ -28,12 +29,14 @@ class bfvlib.net.HttpRequestOptions:
     this-object:QueryParameters = new StringStringMap().  
   end. 
   
-  method public void AddHeader(headerName as character, headerValue as longchar):
+  method public HttpRequestOptions AddHeader(headerName as character, headerValue as longchar):
     this-object:Headers:Put(headerName, headerValue).
+    return this-object.
   end method.
   
-  method public void AddQueryParameter(parameterName as character, parameterValue as longchar):
+  method public HttpRequestOptions AddQueryParameter(parameterName as character, parameterValue as longchar):
     this-object:queryParameters:Put(parameterName, parameterValue).
+    return this-object.
   end method.  
    
 end class.
