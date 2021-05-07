@@ -49,10 +49,10 @@ class bfvlib.auth.KeycloakAuthenticator:
         formData:Add('username', username).
         formData:Add('password', password).
         
-        response = HttpHelper:Post(tokenEndpoint, formData:GetBodyContent(), httpOptions).
+        response = HttpHelper:Post(tokenEndpoint, formData:GetContent(), httpOptions).
         responseJson = cast(response:Entity, "Progress.Json.ObjectModel.JsonObject").
         responseJson:Write(responseText).
-clipboard:value = responseText.             
+             
         return (new AuthenticationReponse(responseJson)).
         
     end method.

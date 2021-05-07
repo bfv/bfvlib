@@ -35,16 +35,13 @@ class bfvlib.net.HttpHelper:
     
   define private static variable token as character no-undo.
   
-  define protected variable method  as character    no-undo.
-  define protected variable service as character    no-undo.
+  define private static variable ciphers as character no-undo extent 4 initial [
       "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",  
       "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
       "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
       "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384"   
     ].
-    
-  define protected variable request as IHttpRequest no-undo.
-  define protected variable client  as IHttpClient  no-undo.   
+  define private static variable protocols as character no-undo extent 4 initial [
       "TLSv1.2",  
       "TLSv1.3"
     ].

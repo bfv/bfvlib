@@ -40,7 +40,13 @@ class bfvlib.net.HttpFormData implements IHtmlFormEncoding:
 
         return body.
         
-    end method.
+    end method.  // GetData
+    
+    
+    method public void Add(pname as character, pvalue as character):
+        SetParameter(pname, pvalue).
+    end method.  // Add
+    
     
     method public void SetParameter(pname as character, pvalue as character):
         
@@ -52,15 +58,17 @@ class bfvlib.net.HttpFormData implements IHtmlFormEncoding:
                 
         ttparam.paramvalue = pvalue.
             
-    end method.
+    end method.  // SetParameter
+    
     
     method public longchar GetContent():
       return GetData().
-    end method.
+    end method.  // GetContent
+    
     
     method private character sanatize(valueIn as character):
         @todo(what="implentation santize").
         return valueIn.  // todo
-    end method.
+    end method.  // sanatize
     
 end class.
