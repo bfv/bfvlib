@@ -5,7 +5,8 @@ based on (version controlled) .df & .st files. These .df and .st files
 are expected to reside all in the same directory. This script reads 
 a property file with the following structure:
     
-```databases=cas,docu
+```
+databases=cas,docu
 
 schema.location=exsysserver/Schema
 database.tmp.location=tmp/db
@@ -16,7 +17,8 @@ cas.db.host=localhost
 
 docu.db.name=docu
 docu.db.port=8404
-docu.db.host=localhost```
+docu.db.host=localhost
+```
     
 The location properties are relative to `${basedir}`. The delta's are created
 in `${database.tmp.location}` and can be reviewed before they are applied to
