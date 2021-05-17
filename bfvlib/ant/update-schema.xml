@@ -1,0 +1,88 @@
+<!-- 
+    update-schema.xml
+    
+    The script is an Ant script designed to update one of more databases 
+    based on (version controlled) .df & .st files. These .df and .st files
+    are expected to reside all in the same directory. This script reads 
+    a property file with the following structure:
+    
+databases=cas,docu
+
+schema.location=exsysserver/Schema
+database.tmp.location=tmp/db
+
+cas.db.name=cas
+cas.db.port=8401
+cas.db.host=localhost
+
+docu.db.name=docu
+docu.db.port=8404
+docu.db.host=localhost
+    
+    The location properties are relative to ${basedir}. The delta's are created
+    in ${database.tmp.location} and can be reviewed before they are applied to
+    the target databases.
+    
+    if databases are cas,docu then the .df is expected to be cas.df (in the ${schema.location}
+    
+    the script can be called like:
+    
+    ant -f update-schema.xml -DDLC=c:/dlc/117 [-Dpropertyfile=<alternate-dir>]
+    
+    The scripts expects ant-contrib-1.0b3.jar to be in the lib dir of Ant     
+-->
+
+<project name="build" default="start" basedir="./../..">
+    
+    <taskdef resource="net/sf/antcontrib/antlib.xml" />    
+    <taskdef resource="PCT.properties" />
+    
+    <property name="propertyfile" location="${basedir}/../config/dbs.properties" />
+    <property file="${propertyfile}" />
+
+    <target name="start">
+    
+        <echo message="properties: ${propertyfile}" />
+        <echo message="${databases}" />
+        <echo message="schema location: {schema.location}" />
+        <echo message="tmp location: {database.tmp.location}" />
+        
+        <mkdir dir="{database.tmp.location}" />
+        
+        <for list="${databases}" param="database">
+        <sequential>  
+                  
+            <PCTCreateDatabase 
+                dbName="@{database}-tmp" 
+                destDir="${database.tmp.location}"
+                schemaFile="${schema.location}/@{database}.df"
+                structFile="${schema.location}/@{database}.st"
+                newInstance="true"
+                dlcHome="${DLC}"
+                />
+                
+            <PCTDumpIncremental destFile="${database.tmp.location}/delta.@{database}.df" dlcHome="${DLC}" removeEmptyDFFile="true">
+                <SourceDb dbName="${database.tmp.location}/@{database}-tmp" singleUser="true" />
+                <TargetDb dbName="${@{database}.db.name}" dbPort="${@{database}.db.port}" hostName="${@{database}.db.host}" singleUser="false" />
+            </PCTDumpIncremental>
+            
+            <delete>
+                <fileset dir="${database.tmp.location}" includes="@{database}-tmp*.*" />
+            </delete>
+            
+            <if><available file="${database.tmp.location}/delta.@{database}.df" /><then>
+                <echo message="check: ${database.tmp.location}/delta.@{database}.df" />
+                <input message="load delta.@{database}.df (y/N)?" validargs="y,n" addproperty="update.@{database}" />
+                <if><equals arg1="${update.@{database}}" arg2="y" /><then>
+                    <PCTLoadSchema srcFile="${database.tmp.location}/delta.@{database}.df" onlineChanges="true" dlcHome="${DLC}">
+                        <PCTConnection dbName="${@{database}.db.name}" dbPort="${@{database}.db.port}" hostName="${@{database}.db.host}" singleUser="false" />
+                    </PCTLoadSchema>
+                </then></if>                
+            </then></if>
+
+        </sequential>
+        </for>
+        
+    </target>
+    
+</project>
