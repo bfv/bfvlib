@@ -1,4 +1,4 @@
-#update-schema.xml
+# update-schema.xml
     
 The script is an Ant script designed to update one of more databases 
 based on (version controlled) .df & .st files. These .df and .st files
