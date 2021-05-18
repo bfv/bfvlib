@@ -6,14 +6,14 @@ are expected to reside all in the same directory. This script reads
 a property file with the following structure:
     
 ```
-databases=cas,docu
+databases=sports2000,docu
 
 schema.location=exsysserver/Schema
 database.tmp.location=tmp/db
 
-cas.db.name=cas
-cas.db.port=8401
-cas.db.host=localhost
+sports2000.db.name=sports2000
+sports2000.db.port=8401
+sports2000.db.host=localhost
 
 docu.db.name=docu
 docu.db.port=8404
@@ -24,10 +24,10 @@ The location properties are relative to `${basedir}`. The delta's are created
 in `${database.tmp.location}` and can be reviewed before they are applied to
 the target databases.
 
-if databases are cas,docu then the .df is expected to be cas.df (in the ${schema.location}
+If the database is called sports2000 then the .df is expected to be sports2000.df (in the `${schema.location}`) and the .st file sports2000.st.
 
-the script can be called like:
+The script can be called like:
 
 `ant -f update-schema.xml -DDLC=c:/dlc/117 [-Dpropertyfile=<alternate-dir>]`
 
-The scripts expects ant-contrib-1.0b3.jar to be in the lib dir of Ant     
+The scripts expects ant-contrib-1.0b3.jar to be in the lib dir of Ant.     
