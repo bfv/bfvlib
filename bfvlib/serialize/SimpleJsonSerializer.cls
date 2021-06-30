@@ -24,6 +24,7 @@ using Progress.Lang.Class.
 using Progress.Reflect.Property.
 using Progress.Lang.AppError.
 using Progress.Json.ObjectModel.ObjectModelParser.
+
 using bfvlib.serialize.IListInfo.
 using bfvlib.serialize.ISerializable.
 using bfvlib.serialize.ISerializableDataStructure.
@@ -33,13 +34,16 @@ class bfvlib.serialize.SimpleJsonSerializer implements ISerializable:
   
   define private variable serializeThese as character no-undo.
   
+  
   constructor public SimpleJsonSerializer():
     serializeThese = "character,date,datetime,datetimetz,decimal,integer,int64,logical,longchar,memptr".    
   end.
   
+  
   method public JsonObject Serialize(objectToSerialize as Progress.Lang.Object):
     return Serialize(objectToSerialize, false).
-  end method.
+  end method.  // Serialize
+   
    
   method public JsonObject Serialize(objectToSerialize as Progress.Lang.Object, includeClassName as logical): 
     
@@ -63,14 +67,20 @@ class bfvlib.serialize.SimpleJsonSerializer implements ISerializable:
     else 
       jsonSerialized = jsonOut.
     
-    do i = 1 to extent(props):
+    do i = 1 to extent(props) on error undo, throw:
       
       prop = props[i].
       if (not prop:CanRead or prop:Name = "next-sibling" or prop:Name = "prev-sibling") then
         next.
       
-      if (lookup(prop:DataType:ToString(), serializeThese) > 0) then  
-        jsonSerialized:Add(prop:Name, dynamic-property(objectToSerialize, prop:Name)).
+      if (lookup(prop:DataType:ToString(), serializeThese) > 0) then do:
+        
+        if (prop:Extent = 0) then
+          jsonSerialized:Add(prop:Name, dynamic-property(objectToSerialize, prop:Name)).
+        else
+          jsonSerialized:Add(prop:Name, serializeExtent(objectToSerialize, prop)).
+          
+      end.
       else do:
         if (prop:DataTypeName = "OpenEdge.Core.Collections.List") then do:
           jsonSerialized:Add(prop:Name, serializeList(dynamic-property(objectToSerialize, prop:Name))).
@@ -82,14 +92,33 @@ class bfvlib.serialize.SimpleJsonSerializer implements ISerializable:
           jsonSerialized:Add(prop:Name, Serialize(dynamic-property(objectToSerialize, prop:Name))).
         end.
       end.
-    end.
+      
+      catch err1 as Progress.Lang.Error :
+        message substitute("error serializing '&1': &2", prop:Name, err1:GetMessage(1)) view-as alert-box.
+      end catch.
+      
+    end.  // do i = 1 to extent(props)
     
     if (objectToSerialize:GetClass():IsA("bfvlib.serialize.ISerializableDataStructure")) then
       addDatastructures(cast(objectToSerialize, "bfvlib.serialize.ISerializableDataStructure"), jsonSerialized).
     
     return jsonOut.
     
-  end method.
+  end method.  // Serialize
+  
+  
+  method public longchar SerializeToLongchar(objectToSerialize as Progress.Lang.Object):
+    
+    define variable json as JsonObject no-undo.
+    define variable resultString as longchar no-undo.
+    
+    json = this-object:Serialize(objectToSerialize).
+    json:Write(resultString).
+    
+    return resultString.
+    
+  end method.  // SerializeToLongchar
+  
   
   method private void addDatastructures(objectToSerialize as ISerializableDataStructure, jsonOut as JsonObject):
     
@@ -116,7 +145,8 @@ class bfvlib.serialize.SimpleJsonSerializer implements ISerializable:
       serializeDataObject(keyname, datahandle, jsonOut).
     end.
     
-  end method.
+  end method.  // addDatastructures
+  
   
   method private void serializeDataObject(propertyName as character, data as handle, jsonOut as JsonObject):
         
@@ -127,7 +157,8 @@ class bfvlib.serialize.SimpleJsonSerializer implements ISerializable:
     
     serializeTempTable(propertyName, data, jsonOut).
     
-  end method.
+  end method.  // serializeDataObject
+  
   
   method private JsonArray serializeList(dataArray as List):
     
@@ -149,7 +180,8 @@ class bfvlib.serialize.SimpleJsonSerializer implements ISerializable:
     
     return array.
     
-  end method.
+  end method.  // serializeList
+  
   
   method private void serializeTempTable(propertyName as character, data as handle, jsonOut as JsonObject):
     
@@ -185,19 +217,22 @@ class bfvlib.serialize.SimpleJsonSerializer implements ISerializable:
       delete object queryHandle no-error.
     end.
     
-  end method.
+  end method.  // serializeTempTable
   
   
-  method public longchar SerializeToLongchar(objectToSerialize as Progress.Lang.Object):
+  method private JsonArray serializeExtent(objectToSerialize as Progress.Lang.Object, prop as Property):
     
-    define variable json as JsonObject no-undo.
-    define variable resultString as longchar no-undo.
+    define variable serializedExtent as JsonArray no-undo.
+    define variable i as integer no-undo.
     
-    json = this-object:Serialize(objectToSerialize).
-    json:Write(resultString).
+    serializedExtent = new JsonArray().
     
-    return resultString.
+    do i = 1 to prop:Extent:
+      serializedExtent:Add(dynamic-property(objectToSerialize, prop:Name, i)).
+    end.
     
-  end method.
+    return serializedExtent.
+    
+  end method.  // serializeExtent
   
 end class.
