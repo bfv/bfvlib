@@ -18,12 +18,12 @@ using OpenEdge.Core.Collections.List.
 using OpenEdge.Core.WidgetHandle.
 using Progress.Json.ObjectModel.JsonArray.
 using Progress.Json.ObjectModel.JsonObject.
+using Progress.Json.ObjectModel.ObjectModelParser.
+using Progress.Lang.AppError.
 using Progress.Lang.Class.
 using Progress.Reflect.Property.
-using Progress.Lang.AppError.
-using Progress.Json.ObjectModel.ObjectModelParser.
+
 using bfvlib.serialize.IListInfo.
-using bfvlib.serialize.ISerializable.
 using bfvlib.serialize.ISerializableDataStructure.
 using bfvlib.serialize.IDeserializable.
 
@@ -33,9 +33,11 @@ class bfvlib.serialize.SimpleJsonDeserializer implements IDeserializable:
   
   define private variable serializeThese as character no-undo.
   
+  
   constructor public SimpleJsonDeserializer():
     serializeThese = "character,date,datetime,datetimetz,decimal,integer,int64,logical,longchar,memptr".    
   end.
+  
 
   method public Progress.Lang.Object DeserializeFile(jsonFilename as character, className as character):
     
@@ -85,6 +87,7 @@ class bfvlib.serialize.SimpleJsonDeserializer implements IDeserializable:
     
   end method.
   
+  
   method public Progress.Lang.Object DeserializeString(jsonString as longchar, className as character):
     
     define variable parser as ObjectModelParser no-undo.
@@ -97,6 +100,7 @@ class bfvlib.serialize.SimpleJsonDeserializer implements IDeserializable:
     
   end method.
   
+  
   method public void DeserializeString(jsonString as longchar, targetObject as Progress.Lang.Object):
     
     define variable parser as ObjectModelParser no-undo.
@@ -108,6 +112,7 @@ class bfvlib.serialize.SimpleJsonDeserializer implements IDeserializable:
     this-object:Deserialize(jsonObj, targetObject).
     
   end method.
+  
   
   method public Progress.Lang.Object Deserialize(jsonIn as JsonObject, targetObj as Progress.Lang.Object): 
 
