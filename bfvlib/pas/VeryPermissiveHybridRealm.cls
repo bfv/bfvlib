@@ -14,6 +14,7 @@
   ----------------------------------------------------------------------*/
 
 using Progress.Security.Realm.IHybridRealm.
+using Progress.Json.ObjectModel.JsonObject.
 
 block-level on error undo, throw.
 
@@ -37,12 +38,15 @@ class bfvlib.pas.VeryPermissiveHybridRealm implements IHybridRealm:
             
     end case.
     
+    message substitute('user: &1, id: &2', userName, userNumber).
+    
     return userNumber.
     
   end method.  // ValidateUser
 
 
   method public logical ValidatePassword(userNumber as integer, password as character):
+    message substitute('id: &1', userNumber).
     return (userNumber > 0).
   end method.  // ValidatePassword
 
@@ -56,7 +60,11 @@ class bfvlib.pas.VeryPermissiveHybridRealm implements IHybridRealm:
         returnValue = 'true'.
       when 'ATTR_ROLES' then 
         returnValue = getRoles(userNumber).
+      when 'ATTR_PROPERTIES' then 
+        returnValue = getExtraProperties(userNumber).
     end case.
+    
+    message substitute('user: &1, attr: &2, value: &3', userNumber, attrName, returnValue).
     
     return returnValue.
     
@@ -83,6 +91,24 @@ class bfvlib.pas.VeryPermissiveHybridRealm implements IHybridRealm:
     return roles.
     
   end method.  // getRoles
+  
+  
+  method private character getExtraProperties(userNumber as integer):
+    
+    define variable json as JsonObject no-undo.
+    define variable jsonString as longchar no-undo.
+    
+    json = new JsonObject().
+    json:Add('date-format', 'dmy').
+    json:Add('numeric-format', 'european').
+    json:Add('timezone', 'CET').
+    json:Add('time-offset', '+02:00').
+    
+    json:Write(jsonString).
+    
+    return string(jsonString).
+    
+  end method.  // getExtraProperties
   
   
   /* superfluous, but here to satisfy the interface: */
