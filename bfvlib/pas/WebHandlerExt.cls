@@ -27,6 +27,7 @@ using OpenEdge.Core.Collections.StringStringMap.
 using OpenEdge.Net.HTTP.Cookie.
 using bfvlib.pas.WebHandlerExt.
 using bfvlib.net.HttpHelper.
+using Progress.Lang.OERequestInfo.
 
 class bfvlib.pas.WebHandlerExt inherits WebHandler: 
   
@@ -75,6 +76,10 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
       when '/propath' then
         response = this-object:processPropath(request).
       
+      // entries to fiddle with auth
+      when '/admin' or when '/system' or when '/info' then
+        response = this-object:processSandboxCalls(request).
+         
       when '' then 
         response = this-object:processHealth(request).
             
@@ -265,6 +270,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
       :addPathParameters(request, json)
       :addPropath(request, json)
       :addVersion(request, json)
+      :addCurrentRequestInfo(request, json)
       .
 
     return this-object.
@@ -422,6 +428,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     return this-object.
     
   end method.
+    
   
   method private WebHandlerExt addVersion(request as IWebRequest, json as JsonObject):
     
@@ -430,6 +437,65 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     return this-object.
     
   end method.
+  
+
+  method private WebHandlerExt addCurrentRequestInfo(request as IWebRequest, json as JsonObject):
+    
+    define variable currentRequestInfo as OERequestInfo no-undo.
+    define variable jsonRequestInfo as JsonObject no-undo.
+    define variable jsonCP as JsonObject no-undo.
+    
+    
+
+    currentRequestInfo = session:current-request-info.
+
+    jsonRequestInfo = new JsonObject().
+    jsonRequestInfo:Add('agentId', currentRequestInfo:AgentId).
+    jsonRequestInfo:Add('clientContextId', currentRequestInfo:ClientContextId).
+    jsonRequestInfo:Add('procedureName', currentRequestInfo:ProcedureName).
+    jsonRequestInfo:Add('requestId', currentRequestInfo:RequestId).
+    jsonRequestInfo:Add('sessionId', currentRequestInfo:SessionId).
+    jsonRequestInfo:Add('threadId', currentRequestInfo:ThreadId).
+    
+    jsonCP = this-object:getCPInfo(currentRequestInfo).
+    jsonRequestInfo:Add("clientPrincipal", jsonCP).
+    
+    json:Add('currentRequestInfo', jsonRequestInfo).
+    
+    return this-object.
+    
+  end method.
+  
+  
+  method private JsonObject getCPInfo(currentRequestInfo as OERequestInfo):
+    
+    define variable jsonCP as JsonObject no-undo.
+    define variable hCP as handle no-undo.
+    define variable propList as character no-undo.
+    define variable propCount as integer no-undo.
+    define variable propName as character no-undo.
+    define variable propValue as character no-undo.
+    define variable i as integer no-undo.
+    
+    jsonCP = new JsonObject().
+    hCP = currentRequestInfo:GetClientPrincipal().
+    
+    jsonCP:Add('userid', hCP:user-id).
+    jsonCP:Add('roles', hCP:roles).
+    
+    propList = hCP:list-property-names().
+    propCount = num-entries(propList).
+    
+    do i = 1 to propCount:
+      propName = entry(i, propList).
+      propValue = hCP:get-property(propName).
+      jsonCP:Add(propName, propValue).
+    end.
+    
+    return jsonCP.
+    
+  end method.
+  
   
   method private IHttpResponse processHealth(request as IWebRequest):
       
@@ -444,6 +510,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     return response.
        
   end method.
+  
   
   method private IHttpResponse processHome(request as IWebRequest):
     
@@ -461,6 +528,24 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     return response.
 
   end method.
+  
+  
+  method private IHttpResponse processSandboxCalls(request as IWebRequest):
+
+    define variable response as IHttpResponse no-undo.
+    define variable json as JsonObject no-undo.
+    
+    json = new JsonObject().
+    json:Add('get', string(request:GetContextValue('PATH_INFO'))).
+    
+    response = new WebResponse().
+    response:Entity = json.
+    response:ContentType = 'application/json'.    
+    
+    return response.
+    
+  end method.  // processSanboxCalls
+  
     
   method private IHttpResponse processNotAllowed(request as IWebRequest):
     
