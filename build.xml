@@ -74,6 +74,8 @@
       <fileset dir="${srcdir}">
         <include name="**/*.p" />
         <include name="**/*.cls" />
+        <exclude name="sandbox/**/*" />
+        <exclude name="**/test-*.p" /> 
       </fileset>
     </PCTCompile>
   </target>
