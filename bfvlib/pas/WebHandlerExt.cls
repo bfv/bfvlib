@@ -26,7 +26,6 @@ using OpenEdge.Net.URI.
 using OpenEdge.Core.Collections.StringStringMap.
 using OpenEdge.Net.HTTP.Cookie.
 using bfvlib.pas.WebHandlerExt.
-using bfvlib.net.HttpHelper.
 using Progress.Lang.OERequestInfo.
 
 class bfvlib.pas.WebHandlerExt inherits WebHandler: 
@@ -153,7 +152,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     headerCount = request:GetHeaders(headers).
     do i = 1 to headerCount:
       currentHeader = headers[i].
-      headerJson:Add(HttpHelper:NormalizeHeaderName(currentHeader:Name), currentHeader:Value).
+      headerJson:Add(this-object:normalizeHeaderName(currentHeader:Name), currentHeader:Value).
     end.
     
     json:Add('headers', headerJson).
@@ -191,20 +190,26 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
   end method.
   
 
-  method private WebHandlerExt addKubernetes(request as IWebRequest, json as JsonObject):
+  method private WebHandlerExt addInstanceInfo(request as IWebRequest, json as JsonObject):
     
-    define variable kubernetesJson as JsonObject no-undo.
+    define variable instanceJson as JsonObject no-undo.
     define variable environment as character no-undo.
+    define variable instanceId as character no-undo.
     
     environment = os-getenv('OE_ENVIRONMENT').
     if (environment = ?) then
         environment = '<unknown>'.
-
-    kubernetesJson = new JsonObject().
-    kubernetesJson:Add('environment', environment).
-    kubernetesJson:Add('calls', callCount).
+    
+    instanceId = os-getenv('INSTANCE_ID').
+    if (instanceId = ?) then 
+      instanceId = 'default'.
+      
+    instanceJson = new JsonObject().
+    instanceJson:Add('environment', environment).
+    instanceJson:Add('id', instanceId).
+    instanceJson:Add('calls', callCount).
         
-    json:Add('kubernetes', kubernetesJson).
+    json:Add('instance', instanceJson).
     
     return this-object.
     
@@ -366,7 +371,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     json = new JsonObject().
     this-object
         :addQueryParameters(request, json)
-        :addKubernetes(request, json)
+        :addInstanceInfo(request, json)
         :addHeaders(request, json)
         :addStandardHttp(request, json)
         .
@@ -478,20 +483,25 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     define variable i as integer no-undo.
     
     jsonCP = new JsonObject().
-    hCP = currentRequestInfo:GetClientPrincipal().
     
-    jsonCP:Add('userid', hCP:user-id).
-    jsonCP:Add('roles', hCP:roles).
-    
-    propList = hCP:list-property-names().
-    propCount = num-entries(propList).
-    
-    do i = 1 to propCount:
-      propName = entry(i, propList).
-      propValue = hCP:get-property(propName).
-      jsonCP:Add(propName, propValue).
-    end.
-    
+    if (valid-handle(hCP)) then do:
+      
+      hCP = currentRequestInfo:GetClientPrincipal().
+      
+      jsonCP:Add('userid', hCP:user-id).
+      jsonCP:Add('roles', hCP:roles).
+      
+      propList = hCP:list-property-names().
+      propCount = num-entries(propList).
+      
+      do i = 1 to propCount:
+        propName = entry(i, propList).
+        propValue = hCP:get-property(propName).
+        jsonCP:Add(propName, propValue).
+      end.
+      
+    end.  // if (valid-handle(hCP))...
+        
     return jsonCP.
     
   end method.
@@ -639,6 +649,44 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     end finally.
     
   end method.
+
+  
+  /* this method is a copy of the one in HttpHelper. The copy here is to make
+   * this handler dependy free, other than OpenEdge.* and Progress.*
+   */
+  method private character normalizeHeaderName(headerName as character):
+    
+    define variable nextCharUpper as logical no-undo.
+    define variable resultString as character no-undo.
+    define variable headerNameLength as integer no-undo.
+    define variable i as integer no-undo.
+    define variable currentChar as character no-undo.
+    
+    headerNameLength = length(headerName).
+    nextCharUpper = true.
+    do i = 1 to headerNameLength:
+      
+      currentChar = substring(headerName, i, 1).
+
+      if (nextCharUpper) then do:
+        resultString = resultString + caps(currentChar).
+        nextCharUpper = false.
+        next.
+      end.  
+      
+      if (currentChar = '_') then
+        currentChar = '-'.
+      
+      if (currentChar = '-') then
+        nextCharUpper = true.        
+      
+      resultString = resultString + lc(currentChar).
+      
+    end.
+    
+    return resultString.
+    
+  end method.  // normalizeHeaderName
     
 end class.
     
