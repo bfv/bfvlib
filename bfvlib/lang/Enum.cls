@@ -10,7 +10,7 @@
 
 block-level on error undo, throw.
 
-class bfvlib.misc.Enum:
+class bfvlib.lang.Enum:
 
   define public property Value as character no-undo get. private set. 
   define public property Name as character no-undo get. private set. 

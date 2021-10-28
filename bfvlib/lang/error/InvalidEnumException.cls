@@ -12,7 +12,7 @@ using Progress.Lang.AppError.
 
 block-level on error undo, throw.
 
-class bfvlib.misc.InvalidEnumException inherits AppError: 
+class bfvlib.lang.error.InvalidEnumException inherits AppError: 
     
   define public property Value as character no-undo get. private set.
   define public property EnumType as character no-undo get. private set.

@@ -1,5 +1,5 @@
 &if defined(constructor) = 0 &then
-class {&package}.{&class} inherits bfvlib.misc.Enum final: 
+class {&package}.{&class} inherits bfvlib.lang.Enum final: 
 
   constructor private {&class} (enumValue as character, enumName as character):
     super(enumValue, enumName).
@@ -75,7 +75,7 @@ class {&package}.{&class} inherits bfvlib.misc.Enum final:
       enumName = entry(lookup(enumValue, trim("{&enumValues}", ","), ","), trim("{&enumNames}", ",")).
       returnValue = dynamic-property("{&package}.{&class}", enumName).
       catch err1 as Progress.Lang.Error :
-        undo, throw new bfvlib.misc.InvalidEnumException(string(enumValue), "{&package}.{&class}").  
+        undo, throw new bfvlib.lang.error.InvalidEnumException(string(enumValue), "{&package}.{&class}").  
       end catch.
     end.
     return returnValue.
@@ -87,7 +87,7 @@ class {&package}.{&class} inherits bfvlib.misc.Enum final:
     do on error undo, throw:
       returnValue = dynamic-property("{&package}.{&class}", enumName).
       catch err1 as Progress.Lang.Error :
-        undo, throw new bfvlib.misc.InvalidEnumException(string(enumName), "{&package}.{&class}").  
+        undo, throw new bfvlib.lang.error.InvalidEnumException(string(enumName), "{&package}.{&class}").  
       end catch.
     end.
     return returnValue.
@@ -127,7 +127,7 @@ class {&package}.{&class} inherits bfvlib.misc.Enum final:
       enumName = entry(lookup(string(enumValue), trim("{&enumValues}", ",")), trim("{&enumNames}", ",")).
       returnValue = dynamic-property("{&package}.{&class}", enumName).
       catch err1 as Progress.Lang.Error :
-        undo, throw new bfvlib.misc.InvalidEnumException(string(enumValue), "{&package}.{&class}").	
+        undo, throw new bfvlib.lang.error.InvalidEnumException(string(enumValue), "{&package}.{&class}").	
       end catch.
     end.
     return returnValue.
