@@ -1,10 +1,10 @@
 
-var char host = 'localhost'.
-var int port = 3110.
+def var host as char init 'localhost' no-undo.
+def var port as int init 3110 no-undo.
  
-var handle has.
-var logical connectOk. 
-var char replyString.
+def var has as handle no-undo.
+def var connectOk as logical no-undo. 
+def var replyString as char no-undo.
 
 create server has.
 

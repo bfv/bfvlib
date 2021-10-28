@@ -17,7 +17,7 @@ class sandbox.oo.crm.Mailer:
   
   method public void Send():
     
-    var Person bronco.
+    def var bronco as Person no-undo.
     
     bronco = new Person().
     

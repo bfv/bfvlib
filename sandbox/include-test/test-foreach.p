@@ -1,7 +1,7 @@
 using OpenEdge.Core.Collections.List.
 using OpenEdge.Core.String.
 
-var List dataArray.
+def var dataArray as List no-undo.
 dataArray = new List().
 dataArray:Add(new String("hallo")).
 dataArray:Add(new String("hoppa")).
