@@ -36,6 +36,8 @@ msg:Recipients:Add(new String("flusso")).
 msg:Recipients:Add(new String("gall")).
 msg:Recipients:Add(new String("ahold")).
 
+// msg:IntArray = [1, 2, 3].
+
 define variable addr as Address no-undo.
 
 addr = new Address().
@@ -66,6 +68,6 @@ if (true) then do:
 end.
 else do:
   
-  run serialize/oe-serialize.p(msg).
+  run bfvlib/serialize/oe-serialize.p(msg).
     
 end.

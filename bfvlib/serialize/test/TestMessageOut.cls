@@ -35,6 +35,7 @@ class bfvlib.serialize.test.TestMessageOut implements ISerializableDataStructure
   define public property HouseAddress as Address no-undo get. set.
   
   define public property Recipients as List no-undo get. set.
+  //define public property IntArray as integer extent initial [1, 2, 3] no-undo get. set.
   
   {bfvlib/serialize/test/dstest.i}
   

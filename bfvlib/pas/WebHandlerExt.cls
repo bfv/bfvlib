@@ -95,7 +95,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
         
     return 0.
     
-  end method. 
+  end method.  // HandleGet
   
   
   method override protected integer HandlePost(request as IWebRequest):
@@ -126,7 +126,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
         
     return 0.
     
-  end method. 
+  end method.  // HandlePost
 
   
   method override protected integer HandleNotAllowedMethod( webRequest as OpenEdge.Web.IWebRequest ):
@@ -159,7 +159,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return this-object.
     
-  end method.
+  end method.  // addHeaders
   
   
   method private WebHandlerExt addQueryParameters(request as IWebRequest, json as JsonObject):
@@ -187,7 +187,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return this-object.
     
-  end method.
+  end method.  // addQueryParameters
   
 
   method private WebHandlerExt addInstanceInfo(request as IWebRequest, json as JsonObject):
@@ -213,7 +213,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return this-object.
     
-  end method.
+  end method.  // addInstanceInfo
   
     
   method private WebHandlerExt addPathParameters(request as IWebRequest, json as JsonObject):
@@ -239,7 +239,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return this-object.
     
-  end method.
+  end method.  // addPathParameters
 
 
   method private WebHandlerExt addContext(request as IWebRequest, json as JsonObject):
@@ -265,7 +265,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return this-object.
     
-  end method.
+  end method.  // addContext
 
   
   method private WebHandlerExt addOpenEdgeInformation(request as IWebRequest, json as JsonObject):
@@ -280,7 +280,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
 
     return this-object.
     
-  end method.
+  end method.  // addOpenEdgeInformation
   
   
   method private WebHandlerExt addStandardHttp(request as IWebRequest, json as JsonObject):
@@ -297,7 +297,8 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return this-object.
 
-  end method.
+  end method.  // addStandardHttp
+  
   
   method private IHttpResponse processCookie(request as IWebRequest, persistentCookie as logical):
     
@@ -329,7 +330,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
       
     return response.
     
-  end method.
+  end method.  // processCookie
   
   
   method private IHttpResponse processCustomer(request as IWebRequest, cached as logical):
@@ -345,7 +346,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
       response:Entity = new String('sports2000/2020 not connected').
     end.
     else do:
-      json = this-object:customersToJson().
+      json = this-object:customersToJson(request).
       response:ContentType = 'application/json'.
       response:Entity = json.
       if (cached) then do:
@@ -356,7 +357,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return response.
     
-  end method.
+  end method.  // processCustomer
   
   
   method private IHttpResponse processGet(request as IWebRequest):
@@ -387,7 +388,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return response.
     
-  end method.
+  end method.  // processGet
 
 
   method private IHttpResponse processPropath(request as IWebRequest):
@@ -405,7 +406,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return response.
     
-  end method.
+  end method.  // processPropath
 
 
   method private JsonArray getPropathJson():
@@ -423,7 +424,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return jsonArray.
     
-  end method.
+  end method.  // getPropathJson
   
   
   method private WebHandlerExt addPropath(request as IWebRequest, json as JsonObject):
@@ -432,7 +433,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return this-object.
     
-  end method.
+  end method.  // addPropath
     
   
   method private WebHandlerExt addVersion(request as IWebRequest, json as JsonObject):
@@ -441,7 +442,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return this-object.
     
-  end method.
+  end method.  // addVersion
   
 
   method private WebHandlerExt addCurrentRequestInfo(request as IWebRequest, json as JsonObject):
@@ -451,7 +452,6 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     define variable jsonCP as JsonObject no-undo.
     
     
-
     currentRequestInfo = session:current-request-info.
 
     jsonRequestInfo = new JsonObject().
@@ -469,7 +469,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return this-object.
     
-  end method.
+  end method.  // addCurrentRequestInfo
   
   
   method private JsonObject getCPInfo(currentRequestInfo as OERequestInfo):
@@ -504,7 +504,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
         
     return jsonCP.
     
-  end method.
+  end method.  // getCPInfo
   
   
   method private IHttpResponse processHealth(request as IWebRequest):
@@ -519,7 +519,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return response.
        
-  end method.
+  end method.  // processHealth
   
   
   method private IHttpResponse processHome(request as IWebRequest):
@@ -537,7 +537,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return response.
 
-  end method.
+  end method.  // processHome
   
   
   method private IHttpResponse processSandboxCalls(request as IWebRequest):
@@ -572,7 +572,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return response.
     
-  end method.
+  end method.  // processNotAllowed
   
   
   method private character urlDecode(urlEntry as character):
@@ -582,12 +582,12 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     
     return urlEntry.
     
-  end method.
+  end method.  // urlDecode
   
   
   method private void reset():
     delete object this-object:queryParameters no-error.  
-  end method.
+  end method.  // reset
   
   
   method private void extractHttpInfo(request as IWebRequest):
@@ -611,10 +611,10 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
       this-object:queryParameters:Put(parameterName, parameterValue).
     end.
         
-  end method.
+  end method.  // extractHttpInfo
   
   
-  method private JsonArray customersToJson():
+  method private JsonArray customersToJson(request as IWebRequest):
     
     define variable json as JsonArray no-undo.
     define variable recordJson as JsonObject no-undo.
@@ -622,13 +622,16 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
     define variable queryHandle as handle no-undo.
     define variable bufferHandle as handle no-undo.
     define variable i as integer no-undo.
+    define variable id as character no-undo.
     
     json = new JsonArray().
+    
+    id = this-object:queryParameters:Get('id').
     
     create query queryHandle.
     create buffer bufferHandle for table 'customer'.
     queryHandle:set-buffers(bufferHandle).
-    queryHandle:query-prepare('for each customer').
+    queryHandle:query-prepare('for each customer' + if (id > '') then ' where custnum = ' + quoter(id) else '').
     queryHandle:query-open().
     
     queryHandle:get-first().
@@ -648,7 +651,7 @@ class bfvlib.pas.WebHandlerExt inherits WebHandler:
        delete object bufferHandle no-error.    
     end finally.
     
-  end method.
+  end method.  // customersToJson
 
   
   /* this method is a copy of the one in HttpHelper. The copy here is to make

@@ -25,9 +25,8 @@ class bfvlib.misc.time.DatePeriod:
   
   method public override character ToString():
     
-    var char currentDateFormat.
-    
-    
+    define variable currentDateFormat as character no-undo.
+        
     currentDateFormat = session:date-format.
     session:date-format = 'ymd'.
     

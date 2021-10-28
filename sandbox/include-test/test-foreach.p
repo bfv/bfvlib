@@ -8,6 +8,6 @@ dataArray:Add(new String("hoppa")).
 dataArray:Add(new String("hatseflatse")).
 
 
-{foreach String kreet in dataArray}
+{foreach.i String kreet in dataArray}
   message string(kreet:Value) view-as alert-box.
 end.
