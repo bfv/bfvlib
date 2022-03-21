@@ -35,112 +35,93 @@ class bfvlib.net.HttpHelper:
     
   define private static variable token as character no-undo.
   
-  define private static variable ciphers as character no-undo extent 4 initial [
-      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",  
+  define private static variable ciphers as character no-undo extent 4 /* initial [     
+      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
       "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
       "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-      "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384"   
-    ].
-  define private static variable protocols as character no-undo extent 4 initial [
-      "TLSv1.2",  
+      "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384"
+      ...
+    ]*/
+    .
+    
+  // TLS versions, note: TLSv1.0 & TLSv1.1 are NOT safe, neither are all SSL protocols  
+  define private static variable protocols as character no-undo extent 2 initial [
+      "TLSv1.2",
       "TLSv1.3"
     ].
-    
-  define private static variable httpClientLibrary as IHttpClientLibrary no-undo.
   
-  constructor static httphelper():
-    httpClientLibrary = ClientLibraryBuilder:Build()
-                            :SetSSLProtocols(protocols)
-                            :SetSSLCiphers(ciphers)
-                            :Library.
+  constructor static HttpHelper():
   end.  
-
+  
+  
+  // for DELETE a body is optional
+  method public static IHttpResponse Delete(url as character, body as longchar):
+    return HttpHelper:execute("delete", url, body, ?).  
+  end.
+  
+  method public static IHttpResponse Delete(url as character, body as longchar, options as HttpRequestOptions):
+    return HttpHelper:execute("delete", url, body, options).
+  end method.
+    
   method public static IHttpResponse Get(url as character):
-    return get(url, ?).
+    return HttpHelper:execute("get", url, ?, ?).
   end method.
   
   method public static IHttpResponse Get(url as character, options as HttpRequestOptions):
-    
-    define variable builder as RequestBuilder no-undo.
-    define variable request as IHttpRequest no-undo.
-    define variable client as IHttpClient no-undo.   
-    define variable response as IHttpResponse no-undo.
-  
-    builder = RequestBuilder:Get(url).
-    builder = HttpHelper:applyAuthorization(builder).
-    builder = HttpHelper:applyOptions(builder, options).
-    
-    request = builder:Request.
-    
-    if (valid-object(options)) then 
-      addParametersToRequest(request, options).
-    
-    client = ClientBuilder:Build():Client.
-    
-    response = client:Execute(request).
-    
-    return response.
-    
+    return HttpHelper:execute("get", url, ?, options).    
   end method.
   
   method public static IHttpResponse Post(url as character, body as longchar):
-    return HttpHelper:Post(url, body, ?).  
+    return HttpHelper:execute("post", url, body, ?).  
   end.
   
   method public static IHttpResponse Post(url as character, body as longchar, options as HttpRequestOptions):
-
-    define variable builder as RequestBuilder no-undo.
-    define variable request as IHttpRequest no-undo.
-    define variable client as IHttpClient no-undo.   
-    define variable response as IHttpResponse no-undo.
-    
-    builder = RequestBuilder:Post(url, new String(body)).   
-    builder = HttpHelper:applyAuthorization(builder). 
-    builder = HttpHelper:applyOptions(builder, options).
-    
-    request = builder:Request.
-    
-    if (valid-object(options)) then
-      addParametersToRequest(request, options).
-    
-    client = ClientBuilder
-               :Build()
-               :UsingLibrary(httpClientLibrary)
-               :Client.
-    
-    response = client:Execute(request).
-    
-    return response.
-    
+    return HttpHelper:execute("post", url, body, options).
   end method.
     
   method public static IHttpResponse Put(url as character, body as longchar):
-    return HttpHelper:Put(url, body, ?).  
+    return HttpHelper:execute("put", url, body, ?).  
   end.
   
   method public static IHttpResponse Put(url as character, body as longchar, options as HttpRequestOptions):
-    
+    return HttpHelper:execute("put", url, body, options).
+  end method.
+  
+  
+  method private static IHttpResponse execute(verb as character, url as character, body as longchar, options as HttpRequestOptions):
+      
     define variable builder as RequestBuilder no-undo.
     define variable request as IHttpRequest no-undo.
     define variable client as IHttpClient no-undo.   
     define variable response as IHttpResponse no-undo.
-  
-    builder = RequestBuilder:Put(url, new String(body)).
-    builder = HttpHelper:applyAuthorization(builder).
-    builder = HttpHelper:applyOptions(builder, options).
     
+    case verb:
+      when "get" then 
+        builder = RequestBuilder:Get(url). 
+      when "post" then
+        builder = RequestBuilder:Post(url, new String(body)).
+      when "put" then
+        builder = RequestBuilder:Put(url, new String(body)).
+      when "delete" then
+        builder = RequestBuilder:Delete(url, new String(body)).        
+    end.
+    
+    builder = HttpHelper:applyOptions(builder, options).    
     request = builder:Request.
     
     if (valid-object(options)) then
       addParametersToRequest(request, options).
       
-    client = ClientBuilder:Build():Client.
-    
+    client = ClientBuilder
+               :Build()
+               :UsingLibrary(getSSLLibrary(options))
+               :Client.
+
     response = client:Execute(request).
     
     return response.
-    
-  end method.
+
+  end method.  // execute
   
   
   method private static RequestBuilder applyOptions(builder as RequestBuilder, options as HttpRequestOptions):
@@ -332,4 +313,26 @@ class bfvlib.net.HttpHelper:
     
   end method.
   
+
+  method private static IHttpClientLibrary getSSLLibrary(options as HttpRequestOptions):
+    
+    define variable sslLibrary as IHttpClientLibrary no-undo.
+    define variable clientLibBuilder as ClientLibraryBuilder no-undo.
+    define variable protocols as character extent no-undo.
+    
+    clientLibBuilder = ClientLibraryBuilder:Build().
+    clientLibBuilder = clientLibBuilder:SslVerifyHost(options:SSLVerifyHost).
+    
+    // Set TLS versions
+    clientLibBuilder = clientLibBuilder:SetSSLProtocols(protocols).
+    
+    // leave ciphers for now
+    // clientLibBuilder = clientLibBuilder:SetSslCiphers(ciphers).
+    
+    sslLibrary = clientLibBuilder:Library.
+    
+    return sslLibrary.
+    
+  end method.
+
 end class.

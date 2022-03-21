@@ -23,6 +23,7 @@ class bfvlib.net.HttpRequestOptions:
   define public property QueryParameters as StringStringMap no-undo get. private set.
   
   define public property ViaProxy as character no-undo get. set.
+  define public property SSLVerifyHost as logical no-undo initial true get. set.
   
   constructor public HttpRequestOptions():
     this-object:Headers = new StringStringMap().  
