@@ -334,5 +334,68 @@ class bfvlib.net.HttpHelper:
     return sslLibrary.
     
   end method.
+  
+  
+  method public static character URLEncode(toEncode as character):
+    return UrlEncode(toEncode, "default").
+  end method.
+  
+  method public static character URLEncode(toEncode as character, encodingType as character):
+    
+    define variable hexChars as character no-undo initial "0123456789ABCDEF". 
+    define variable encodeList as character no-undo.
+    define variable pos as integer no-undo. 
+    define variable asciiVal as integer no-undo. 
+    define variable unsafe as character no-undo initial " <>~"#%~{}|~\^~~[]`".  // Unsafe characters that must be encoded in URL's.  See RFC 1738 Sect 2.2. 
+    define variable reserved as character no-undo initial "~;/?:@=&".  // Reserved characters that normally are not encoded in URL's
+    define variable encoded as character no-undo.
+    
+    /* Don't bother with blank or unknown */ 
+    if (length(toEncode) = 0 or toEncode = ?) then 
+      return "". 
+
+    /* What kind of encoding should be used? */ 
+    case encodingType: 
+      
+      when "query" then /* QUERY_STRING name=value parts */ 
+        encodeList = unsafe + reserved + "+". 
+        
+      when "cookie" then /* Persistent Cookies */ 
+        encodeList = unsafe + " ,~;". 
+        
+      when "default" or when "" then /* Standard URL encoding */ 
+        encodeList = unsafe.
+         
+      otherwise 
+        encodeList = unsafe + encodingType. /* user specified ... */ 
+        
+    end case. 
+
+    /* Loop through entire input string */ 
+    encoded = toEncode.    
+    pos = 0. 
+    do while true: 
+      
+      pos = pos + 1.
+      asciiVal = asc(substring(encoded, pos, 1, "RAW"), "1252", "1252").  /* ASCII value of character using single byte codepage */ 
+      
+      if (asciiVal <= 31 or asciiVal >= 127 or index(encodeList, chr(asciiVal)) > 0) then do:  /* Replace character with %hh hexidecimal triplet */ 
+        
+        substring(encoded, pos, 1, "RAW") = "%" + 
+          substring(hexChars, integer(truncate(asciiVal / 16, 0)) + 1, 1, "RAW") + /* high */ 
+          substring(hexChars, asciiVal modulo 16 + 1, 1, "RAW"). /* low digit */ 
+
+        pos = pos + 2. /* skip over hex triplet just inserted */ 
+        
+      end. 
+      
+      if (pos = length(encoded, "RAW")) then 
+        leave. 
+    
+    end. 
+    
+    return encoded.
+    
+  end method.  // UrlEncode
 
 end class.
