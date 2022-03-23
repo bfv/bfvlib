@@ -18,7 +18,7 @@ class bfvlib.lang.error.InvalidEnumException inherits AppError:
   define public property EnumType as character no-undo get. private set.
     
   constructor public InvalidEnumException (enumValue as character):
-    super (input substitute("Enumeration has an invalid value: &1", enumValue), 0).
+    super (substitute("Enumeration has an invalid value: &1", enumValue), 0).
     this-object:Value = enumValue.
   end constructor.
 
