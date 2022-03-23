@@ -1,0 +1,5 @@
+{
+  "_inherits": "bfvlib/config/sample-grandparent.json",
+  "environment": "dev",
+  "name": "hatseflatse"
+}

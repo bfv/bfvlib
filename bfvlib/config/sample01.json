@@ -1,0 +1,26 @@
+{
+  "_inherits": "bfvlib/config/sample-parent.json",
+  "environment": "test",
+  "email": {
+    "host": "servert01",
+    "port": 8081,
+    "cc": [
+      "foo1@bar.com",
+      "foo2@bar.com"
+    ]
+  },
+  "apikey": "abcde12345",
+  "nest0": {
+    "nest00": {
+      "nest000": "000",
+      "nest001": "001"
+    },
+    "nest01": {
+      "nest010": "010",
+      "nest011": {
+        "nest0110": "0110",
+        "nest0111": "0111"
+      }
+    }
+  }
+}
