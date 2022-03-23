@@ -1,15 +1,15 @@
 {
   "_inherits": "bfvlib/config/sample-parent.json",
   "environment": "test",
+  "apikey": "abcde12345",
   "email": {
-    "host": "servert01",
+    "host": "smtp.bfv.io",
     "port": 8081,
     "cc": [
       "foo1@bar.com",
       "foo2@bar.com"
     ]
   },
-  "apikey": "abcde12345",
   "nest0": {
     "nest00": {
       "nest000": "000",
